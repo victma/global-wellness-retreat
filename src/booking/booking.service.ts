@@ -1,9 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import { Booking } from "./booking.model";
+import { Booking, NewBooking } from "./booking.entity";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class BookingService {
-  create(booking: Booking) {
-    console.log(`Create new booking for ${booking.email}`);
+  constructor(
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
+  ) {}
+
+  create(booking: NewBooking): Promise<Booking> {
+    return this.bookingRepository.save(booking);
+  }
+
+  findAll() {
+    return this.bookingRepository.find();
   }
 }

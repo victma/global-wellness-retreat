@@ -1,19 +1,40 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import * as request from "supertest";
+import {
+  TypeOrmModule,
+  TypeOrmModuleOptions,
+  getRepositoryToken,
+} from "@nestjs/typeorm";
 import { BookingModule } from "../src/booking/booking.module";
+import { Booking } from "../src/booking/booking.entity";
+import { Repository } from "typeorm";
+
+const typeOrmConfig: TypeOrmModuleOptions = {
+  type: "sqlite",
+  database: "db-test.sql",
+  synchronize: true,
+  autoLoadEntities: true,
+};
 
 describe("Booking endpoints (e2e)", () => {
   let app: INestApplication;
+  let bookingRepository: Repository<Booking>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [BookingModule],
+      imports: [TypeOrmModule.forRoot(typeOrmConfig), BookingModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
+
+    bookingRepository = app.get(getRepositoryToken(Booking));
+  });
+
+  beforeEach(() => {
+    bookingRepository.delete({});
   });
 
   describe("/booking (POST)", () => {
