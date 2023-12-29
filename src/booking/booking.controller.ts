@@ -2,13 +2,15 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Get,
   Post,
+  UseGuards,
 } from "@nestjs/common";
 import { BookingService } from "./booking.service";
 import { CreateBookingDto } from "./booking.dto";
+import { AuthGuard } from "../auth/auth.guard";
 
 @Controller("booking")
+@UseGuards(AuthGuard)
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
@@ -30,10 +32,5 @@ export class BookingController {
     });
 
     return;
-  }
-
-  @Get()
-  getAllBookings() {
-    return this.bookingService.findAll();
   }
 }

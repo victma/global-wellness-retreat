@@ -10,6 +10,6 @@ const typeOrmConfig: TypeOrmModuleOptions = {
 };
 
 @Module({
-  imports: [BookingModule, TypeOrmModule.forRoot(typeOrmConfig)],
+  imports: [TypeOrmModule.forRoot(typeOrmConfig), BookingModule],
 })
 export class AppModule {}

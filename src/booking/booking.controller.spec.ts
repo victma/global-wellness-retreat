@@ -1,8 +1,9 @@
 import { Test } from "@nestjs/testing";
+import { BadRequestException } from "@nestjs/common";
 import { BookingController } from "./booking.controller";
 import { BookingService } from "./booking.service";
 import { CreateBookingDto } from "./booking.dto";
-import { BadRequestException } from "@nestjs/common";
+import { AuthService } from "../auth/auth.service";
 
 const createBookingDto: CreateBookingDto = {
   email: "test@mail.com",
@@ -18,6 +19,9 @@ const bookingServiceMock: Pick<BookingService, "create"> = {
     return Promise.resolve({ id: 1, ...booking });
   },
 };
+const authServiceMock: Pick<AuthService, "validate"> = {
+  validate: () => Promise.resolve(true),
+};
 
 describe("BookingController", () => {
   let bookingController: BookingController;
@@ -29,6 +33,10 @@ describe("BookingController", () => {
         {
           provide: BookingService,
           useValue: bookingServiceMock,
+        },
+        {
+          provide: AuthService,
+          useValue: authServiceMock,
         },
       ],
     }).compile();

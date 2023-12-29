@@ -13,8 +13,4 @@ export class BookingService {
   create(booking: NewBooking): Promise<Booking> {
     return this.bookingRepository.save(booking);
   }
-
-  findAll() {
-    return this.bookingRepository.find();
-  }
 }
