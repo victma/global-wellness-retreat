@@ -127,6 +127,19 @@ Lastly, this implementation only focuses on the requests authentication, not on 
 
 Another implementation I considered was to have a dedicated Auth endpoint to generate short-lived bearer tokens used to authenticate subsequent requests.
 
+```mermaid
+sequenceDiagram
+    Client->>+API: POST /auth<br />X-GWR-Id: <secret-key>
+    API->>DB: Find secret key
+    DB->>API: Found
+    API->>-Client: HTTP 200 OK<br />{ token : afe12...tz }
+    loop For 5 min
+    Client->>+API: POST /booking<br />Authorization: Bearer afe12...tz
+    API->>API: Validate token
+    API->>-Client: HTTP 201 Created
+    end
+```
+
 This implementation would greatly reduce the load of the database in the case of a high frequency of request from partners (several requests in the time-to-live of a token).
 
 The main drawbacks of this implementation are that :
