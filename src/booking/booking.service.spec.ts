@@ -1,14 +1,11 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { BookingService } from "./booking.service";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Booking, NewBooking } from "./booking.entity";
-import { Repository } from "typeorm";
+import { mockBookingRepository } from "./booking.mock";
+import { BookingService } from "./booking.service";
 
 describe("BookingService", () => {
   let service: BookingService;
-  const bookingRepositoryMock: Partial<Repository<Booking>> = {
-    save: (b) => Promise.resolve(b),
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -16,7 +13,7 @@ describe("BookingService", () => {
         BookingService,
         {
           provide: getRepositoryToken(Booking),
-          useValue: bookingRepositoryMock,
+          useValue: mockBookingRepository,
         },
       ],
     }).compile();
@@ -35,7 +32,7 @@ describe("BookingService", () => {
         travelDateEnd: new Date(),
       };
 
-      const saveSpy = jest.spyOn(bookingRepositoryMock, "save");
+      const saveSpy = jest.spyOn(mockBookingRepository, "save");
 
       await service.create(newBooking);
 

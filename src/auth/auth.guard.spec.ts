@@ -2,10 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ExecutionContext, UnauthorizedException } from "@nestjs/common";
 import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./auth.service";
-
-const authServiceMock: Partial<AuthService> = {
-  validate: () => Promise.resolve(false),
-};
+import { mockAuthService } from "./auth.mock";
 
 describe("AuthGuard", () => {
   let guard: AuthGuard;
@@ -16,7 +13,7 @@ describe("AuthGuard", () => {
         AuthGuard,
         {
           provide: AuthService,
-          useValue: authServiceMock,
+          useValue: mockAuthService,
         },
       ],
     }).compile();
@@ -51,7 +48,7 @@ describe("AuthGuard", () => {
 
     it("should return false if api key is invalid", async () => {
       const validateSpy = jest
-        .spyOn(authServiceMock, "validate")
+        .spyOn(mockAuthService, "validate")
         .mockResolvedValue(false);
 
       const apiKey = "api-key";
@@ -72,7 +69,7 @@ describe("AuthGuard", () => {
 
     it("should return true if api key is valid", async () => {
       const validateSpy = jest
-        .spyOn(authServiceMock, "validate")
+        .spyOn(mockAuthService, "validate")
         .mockResolvedValue(true);
 
       const apiKey = "api-key";

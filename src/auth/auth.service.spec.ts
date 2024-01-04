@@ -1,17 +1,12 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { InsertResult, Repository } from "typeorm";
 import * as bcrypt from "bcrypt";
-import { AuthService } from "./auth.service";
 import { ApiKey } from "./apiKey.entity";
+import { mockApiKeyRepository } from "./auth.mock";
+import { AuthService } from "./auth.service";
 
 describe("AuthService", () => {
   let service: AuthService;
-  const mockKeyRepository: Partial<Repository<ApiKey>> = {
-    findBy: () => Promise.resolve([]),
-    insert: () => Promise.resolve({} as InsertResult),
-    exist: () => Promise.resolve(true),
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,7 +14,7 @@ describe("AuthService", () => {
         AuthService,
         {
           provide: getRepositoryToken(ApiKey),
-          useValue: mockKeyRepository,
+          useValue: mockApiKeyRepository,
         },
       ],
     }).compile();
@@ -38,7 +33,7 @@ describe("AuthService", () => {
       const partnerId = "partner";
 
       const findBySpy = jest
-        .spyOn(mockKeyRepository, "findBy")
+        .spyOn(mockApiKeyRepository, "findBy")
         .mockResolvedValue([{ partnerId, hash }]);
       const compareSpy = jest
         .spyOn(bcrypt, "compare")
@@ -56,7 +51,7 @@ describe("AuthService", () => {
       const partnerId = "partner";
 
       const findBySpy = jest
-        .spyOn(mockKeyRepository, "findBy")
+        .spyOn(mockApiKeyRepository, "findBy")
         .mockResolvedValue([{ partnerId, hash }]);
       const compareSpy = jest
         .spyOn(bcrypt, "compare")
@@ -73,7 +68,7 @@ describe("AuthService", () => {
       const partnerId = "partner";
 
       const findBySpy = jest
-        .spyOn(mockKeyRepository, "findBy")
+        .spyOn(mockApiKeyRepository, "findBy")
         .mockResolvedValue([]);
       const compareSpy = jest.spyOn(bcrypt, "compare");
 
@@ -92,9 +87,9 @@ describe("AuthService", () => {
         .spyOn(bcrypt, "hash")
         .mockImplementation(() => Promise.resolve("key-hash"));
       const existSpy = jest
-        .spyOn(mockKeyRepository, "exist")
+        .spyOn(mockApiKeyRepository, "exist")
         .mockResolvedValue(false);
-      const insertSpy = jest.spyOn(mockKeyRepository, "insert");
+      const insertSpy = jest.spyOn(mockApiKeyRepository, "insert");
 
       const newKey = await service.generateNewKey(partnerId);
 
@@ -111,10 +106,10 @@ describe("AuthService", () => {
         .mockImplementationOnce(() => Promise.resolve("key-hash-1"))
         .mockImplementationOnce(() => Promise.resolve("key-hash-2"));
       const existSpy = jest
-        .spyOn(mockKeyRepository, "exist")
+        .spyOn(mockApiKeyRepository, "exist")
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(false);
-      const insertSpy = jest.spyOn(mockKeyRepository, "insert");
+      const insertSpy = jest.spyOn(mockApiKeyRepository, "insert");
 
       const newKey = await service.generateNewKey(partnerId);
 
@@ -132,8 +127,8 @@ describe("AuthService", () => {
       jest
         .spyOn(bcrypt, "hash")
         .mockImplementation(() => Promise.resolve("key-hash"));
-      jest.spyOn(mockKeyRepository, "exist").mockResolvedValue(true);
-      const insertSpy = jest.spyOn(mockKeyRepository, "insert");
+      jest.spyOn(mockApiKeyRepository, "exist").mockResolvedValue(true);
+      const insertSpy = jest.spyOn(mockApiKeyRepository, "insert");
 
       await expect(() => service.generateNewKey(partnerId)).rejects.toThrow();
       expect(insertSpy).not.toHaveBeenCalled();
@@ -143,7 +138,7 @@ describe("AuthService", () => {
   describe("findByPartnerId", () => {
     it("should return the list of API keys hash", async () => {
       const partnerId = "partner-id";
-      jest.spyOn(mockKeyRepository, "findBy").mockResolvedValue([
+      jest.spyOn(mockApiKeyRepository, "findBy").mockResolvedValue([
         { partnerId, hash: "key-1-hash" },
         { partnerId, hash: "key-2-hash" },
       ]);
@@ -156,7 +151,7 @@ describe("AuthService", () => {
 
     it("should return an empty array if there is no key for this partner", async () => {
       const partnerId = "partner-id";
-      jest.spyOn(mockKeyRepository, "findBy").mockResolvedValue([]);
+      jest.spyOn(mockApiKeyRepository, "findBy").mockResolvedValue([]);
 
       const expected: string[] = [];
       const actual = await service.findByPartnerId(partnerId);

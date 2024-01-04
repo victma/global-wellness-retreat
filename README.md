@@ -119,7 +119,7 @@ To reduce the load on the database and the latency, we could :
 - cache key hashes in memory, as close to the client as possible to reduce the number of calls to the database
 - add a checksum at the of the key (eg. `<private-key>_<checksum>`) to reject malformed keys without the need for a database query
 
-Another improvement would be to combine the id and key to give only one key to clients. This would make implementation even easier for them. We need to keep the id though, as the keys are hashed with a salt. Without the id, checking the validity of a key would imply going through the whole table of key hashes one by one which is not acceptable is terms of latency.
+Another improvement would be to combine the id and key in a single token. This would make implementation even easier for partners. We need to keep both parts distinguishable though, as the keys are hashed with a salt. Without an id, checking the validity of a key would imply going through the whole table of key hashes one by one which is not acceptable is terms of latency.
 
 Lastly, this implementation only focuses on the requests authentication, not on API keys management. In a production scenario, we would have partner accounts associated to a randomly generated id, expiration dates on keys, etc.
 
@@ -157,6 +157,6 @@ To simplify the setup of the project, I chose SQLite which requires virtually no
 
 ### Schema
 
-The `/booking` endpoint mostly validates the format of the parameters. It would make sense to add more business logic validation.
+The `/booking` endpoint does little more than validating the format of the parameters. It would make sense to add more business logic validation.
 
 For example, the `language` parameter must be any locale. In real life, there would probably be a few supported languages only.
